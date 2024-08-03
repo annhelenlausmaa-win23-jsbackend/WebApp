@@ -40,27 +40,23 @@
     <div class="input-pair-wrapper">
         <div class="input-wrapper">
             <div class="input-top-wrapper">
-                <label class="h6 label" asp-for="BasicInfoForm.Email"></label>
-              
-                    <span class="text-s span" asp-validation-for="BasicInfoForm.Email"></span>
-                
+                <label class="h6 label" for="Input.Email"></label>
+                <ValidationMessage For="() => Input.Email" class="text-s span" />
             </div>
-   
-                <input class="input" asp-for="BasicInfoForm.Email" />
-            
+            <InputText @bind-Value="Input.Email" class="input" autocomplete="email" aria-required="true" placeholder="" />
         </div>
         <div class="input-wrapper">
             <div class="input-top-wrapper">
-                <label class="h6 label" asp-for="BasicInfoForm.PhoneNumber"></label>
+                <label class="h6 label" for="Input.PhoneNumber"></label>
             </div>
-            <input class="input" asp-for="BasicInfoForm.PhoneNumber" />
+            <InputText @bind-Value="Input.PhoneNumber" class="input" autocomplete="phonenumber" aria-required="true" placeholder="" />
         </div>
     </div>
     <div class="input-wrapper">
         <div class="input-top-wrapper">
-            <label class="h6 label" asp-for="BasicInfoForm.Biography"></label>
+            <label class="h6 label" for="Input.Biography"></label>
         </div>
-        <textarea class="textarea" asp-for="BasicInfoForm.Biography"></textarea>
+        <InputTextArea @bind-Value="Input.Biography" class="input" autocomplete="biograpfy" aria-required="true" placeholder="" />
     </div>
 
     <div class="button-wrapper">

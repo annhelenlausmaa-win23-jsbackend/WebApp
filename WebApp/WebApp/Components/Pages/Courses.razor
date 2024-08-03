@@ -97,7 +97,7 @@
         {
             courses = await Http.GetFromJsonAsync<CourseModel[]>(Environment.GetEnvironmentVariable("COURSES_URI"));
         } 
-        catch (Exception ex)
+        catch (Exception)
         {
             LoadingMessage = "No courses found";
         }
