@@ -1,0 +1,201 @@
+﻿@page "/account/details"
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using WebApp.Data
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+
+<PageTitle>Details</PageTitle>
+
+
+<h1 class="h1 desktop-heading">Account Details</h1>
+<EditForm class="basic-info-form" Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post" novalidate>
+    <DataAnnotationsValidator/>
+    <h5 class="h5 colored-subheading">Basic Info</h5>
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert">
+            <p>@ErrorMessage</p>
+            <i class="fa-solid fa-triangle-exclamation icon"></i>
+        </div>
+    }
+    <div class="input-pair-wrapper">
+        <div class="input-wrapper">
+            <div class="input-top-wrapper">
+                <label class="h6 label" for="firstname">First name</label>
+                <ValidationMessage For="() => Input.FirstName" class="text-s span" />      
+            </div>
+            <InputText @bind-Value="Input.FirstName" class="input" autocomplete="givenname" aria-required="true" placeholder="" />
+        </div>
+        <div class="input-wrapper">
+            <div class="input-top-wrapper">
+                <label class="h6 label" for="lastname">Last name</label>
+                <ValidationMessage For="() => Input.LastName" class="text-s span" />
+            </div>
+            <InputText @bind-Value="Input.LastName" class="input" autocomplete="surname" aria-required="true" placeholder="" />
+        </div>
+    </div>
+    <div class="input-pair-wrapper">
+        <div class="input-wrapper">
+            <div class="input-top-wrapper">
+                <label class="h6 label" asp-for="BasicInfoForm.Email"></label>
+              
+                    <span class="text-s span" asp-validation-for="BasicInfoForm.Email"></span>
+                
+            </div>
+   
+                <input class="input" asp-for="BasicInfoForm.Email" />
+            
+        </div>
+        <div class="input-wrapper">
+            <div class="input-top-wrapper">
+                <label class="h6 label" asp-for="BasicInfoForm.PhoneNumber"></label>
+            </div>
+            <input class="input" asp-for="BasicInfoForm.PhoneNumber" />
+        </div>
+    </div>
+    <div class="input-wrapper">
+        <div class="input-top-wrapper">
+            <label class="h6 label" asp-for="BasicInfoForm.Biography"></label>
+        </div>
+        <textarea class="textarea" asp-for="BasicInfoForm.Biography"></textarea>
+    </div>
+
+    <div class="button-wrapper">
+        <button type="reset" class="btn-gray button">Cancel</button>
+        <button type="submit" class="btn-theme button">Save changes</button>
+    </div>
+</EditForm>
+
+@* <form class="address-form" method="post" asp-controller="Account" asp-action="Details" novalidate>
+    <h5 class="h5 colored-subheading">Address</h5>
+    <div class="input-wrapper">
+        <div class="input-top-wrapper">
+            <label class="h6 label" asp-for="AddressInfoForm.AddressLine1"></label>
+            <span class="text-s span" asp-validation-for="AddressInfoForm.AddressLine1"></span>
+        </div>
+        <input class="input" asp-for="AddressInfoForm.AddressLine1" />
+    </div>
+    <div class="input-wrapper">
+        <div class="input-top-wrapper">
+            <label class="h6 label" asp-for="AddressInfoForm.AddressLine2"></label>
+            <span class="text-s span" asp-validation-for="AddressInfoForm.AddressLine2"></span>
+        </div>
+        <input class="input" asp-for="AddressInfoForm.AddressLine2" />
+    </div>
+    <div class="input-pair-wrapper">
+        <div class="input-wrapper">
+            <div class="input-top-wrapper">
+                <label class="h6 label" asp-for="AddressInfoForm.PostalCode"></label>
+                <span class="text-s span" asp-validation-for="AddressInfoForm.PostalCode"></span>
+            </div>
+            <input class="input" asp-for="AddressInfoForm.PostalCode" />
+        </div>
+        <div class="input-wrapper">
+            <div class="input-top-wrapper">
+                <label class="h6 label" asp-for="AddressInfoForm.City"></label>
+                <span class="text-s span" asp-validation-for="AddressInfoForm.City"></span>
+            </div>
+            <input class="input" asp-for="AddressInfoForm.City" />
+        </div>
+    </div>
+    <div class="button-wrapper">
+        <button type="reset" class="btn-gray button">Cancel</button>
+        <button type="submit" class="btn-theme button">Save changes</button>
+    </div>
+</form> *@
+
+
+
+
+
+<h3>Profile</h3>
+@* <StatusMessage /> *@
+
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="Input" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+            <div class="form-floating mb-3">
+                <input type="text" value="@username" class="form-control" placeholder="Please choose your username." disabled />
+                <label for="username" class="form-label">Username</label>
+            </div>
+            <div class="form-floating mb-3">
+                <InputText @bind-Value="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
+                <label for="phone-number" class="form-label">Phone number</label>
+                <ValidationMessage For="() => Input.PhoneNumber" class="text-danger" />
+            </div>
+            <button type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private string? ErrorMessage;
+    private ApplicationUser user = default!;
+    private string? username;
+    private string? phoneNumber;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        user = await UserManager.GetUserAsync(HttpContext.User) ?? null!;
+        username = await UserManager.GetUserNameAsync(user);
+        phoneNumber = await UserManager.GetPhoneNumberAsync(user);
+
+        Input.PhoneNumber ??= phoneNumber;
+    }
+
+    private async Task OnValidSubmitAsync()
+    {
+        if (Input.PhoneNumber != phoneNumber)
+        {
+            var setPhoneResult = await UserManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
+            if (!setPhoneResult.Succeeded)
+            {
+                // RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to set phone number.", HttpContext);
+            }
+        }
+
+        await SignInManager.RefreshSignInAsync(user);
+        // RedirectManager.RedirectToCurrentPageWithStatus("Your profile has been updated", HttpContext);
+    }
+
+    private sealed class InputModel
+    {
+        [Display(Name = "First name")]
+        [Required(ErrorMessage = "You must enter a first name")]
+        [MinLength(2, ErrorMessage = "Invalid first name format")]
+        [DataType(DataType.Text)]
+        public string FirstName { get; set; } = null!;
+
+        [Display(Name = "Last name")]
+        [Required(ErrorMessage = "You must enter a last name")]
+        [MinLength(2, ErrorMessage = "Invalid last name format")]
+        [DataType(DataType.Text)]
+        public string LastName { get; set; } = null!;
+
+        [Display(Name = "E-mail")]
+        [Required(ErrorMessage = "You must enter an e-mail")]
+        [RegularExpression("^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$", ErrorMessage = "Invalid e-mail format")]
+        [DataType(DataType.EmailAddress)]
+        public string Email { get; set; } = null!;
+
+        [Phone]
+        [Display(Name = "Phone number")]
+        public string? PhoneNumber { get; set; }
+
+        [Display(Name = "Biography")]
+        [DataType(DataType.Text)]
+        public string? Biography { get; set; }
+
+    }
+}

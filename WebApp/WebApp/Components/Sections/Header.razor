@@ -1,0 +1,93 @@
+﻿<header class="section header-section">
+    <div class="content">
+        <div class="left-wrapper">
+@*             @if (isDark)
+            {
+                <a asp-controller="Home" asp-action="Index"><img src="/images/header_logo_desktop_dark.svg"></a>
+            }
+            else
+            {
+                <a asp-controller="Home" asp-action="Index"><img src="/images/header_logo_desktop.svg"></a>
+            } *@
+
+            <a href="/" ><img src="/images/header_logo_desktop.svg"></a>
+
+            <div class="link-wrapper">
+                <NavLink class="menu-link" href="" Match="NavLinkMatch.All">Overview</NavLink>
+                <NavLink class="menu-link" href="/#features">Features</NavLink>
+                    <AuthorizeView>
+                        <Authorized>
+                        <NavLink class="menu-link" href="/courses">Courses</NavLink>
+                        </Authorized>
+                    </AuthorizeView>
+                <NavLink class="menu-link" href="/contact">Contact</NavLink>
+            </div>
+        </div>
+
+        <div class="right-wrapper">
+            <i class="fa-solid fa-bars mobile-menu-btn" id="mobile-menu-btn-open"></i>
+            <div class="btn-switch">
+                <span>Light</span>
+                <label class="switch" for="toggle-btn">
+
+                    <input type="checkbox" id="toggle-btn" >
+                    <span class="slider"></span>
+                </label>
+                <span>Dark</span>
+            </div>
+            <div class="btn-wrapper">
+                <AuthorizeView>
+                    <Authorized>
+                        <NavLink class="" href="/account/details">Profile</NavLink>
+                    </Authorized>
+                    <NotAuthorized>
+                        <NavLink class="btn-gray" href="/signin"><i class="fa-solid fa-arrow-right-to-bracket"></i> Sign in</NavLink>
+                        <NavLink class="btn-theme" href="/signup"><i class="fa-regular fa-user"></i> Sign up</NavLink>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </div>
+        </div>
+
+        <div class="mobile-menu hide" id="mobile-menu">
+            <div class="mobile-top">
+                <i class="fa-solid fa-xmark mobile-menu-btn" id="mobile-menu-btn-close"></i>
+                <div class="mobile-links-wrapper">
+                    <NavLink class="menu-link" href="/">Overview</NavLink>
+                    <NavLink class="menu-link" href="/#features">Features</NavLink>
+                        <AuthorizeView>
+                            <Authorized>
+                            <NavLink class="menu-link" href="/courses">Courses</NavLink>
+                            </Authorized>
+                        </AuthorizeView>
+                    <NavLink class="menu-link" href="/contact">Contact</NavLink>
+                </div>
+            </div>
+            <div class="mobile-bottom">
+@*                 <div class="mobile-btn-switch">
+                    <span>Light</span>
+                    <label class="switch" for="toggle-btn-mobile">
+                        <input type="checkbox" id="toggle-btn-mobile" checked="@isDark">
+                        <span class="slider"></span>
+                    </label>
+                    <span>Dark</span>
+                </div> *@
+
+                <div class="mobile-btn-wrapper">
+                    <AuthorizeView>
+                        <Authorized>
+                            <NavLink class="menu-link" href="account/details"><img src="/images/avatar.svg" alt="" class="profile-img" /> Profile</NavLink>
+                        </Authorized>
+                        <NotAuthorized>
+                            <NavLink class="btn-gray" href="/signin"><i class="fa-solid fa-arrow-right-to-bracket"></i> Sign in</NavLink>
+                            <NavLink class="btn-theme" href="/signup"><i class="fa-regular fa-user"></i> Sign up</NavLink>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+@code {
+
+}

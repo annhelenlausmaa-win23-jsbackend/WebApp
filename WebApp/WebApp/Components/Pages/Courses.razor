@@ -1,0 +1,121 @@
+﻿@page "/courses"
+
+@attribute [StreamRendering]
+@attribute [Authorize]
+
+<PageTitle>Courses</PageTitle>
+
+<section class="section courses-section">
+    <div class="content">
+        <div class="heading-wrapper">
+            <h1 class="h1">Courses</h1>
+            <div class="input-wrapper">
+
+                <select id="select" class="input">
+                    <option value="all">All categories</option>
+@*                     @if (Model.CoursesSection.Categories != null)
+                    {
+                        @foreach (var category in Model.CoursesSection.Categories)
+                        {
+                            <option value="@category.CategoryName">@category.CategoryName</option>
+                        }
+                    } *@
+                </select>
+                <div class="search-wrapper">
+                    <input id="searchQuery" name="searchQuery" type="text" class="input" placeholder="Search courses" />
+                    <i class="fa-regular fa-magnifying-glass"></i>
+                </div>
+            </div>
+        </div>
+        <div class="card-wrapper course-card-wrapper">
+            @if (courses == null)
+            {
+                <p>@LoadingMessage</p>
+            }
+            else
+            {
+                @foreach (var course in courses)
+                {
+                    @* bool isCourseSaved = savedCourses.Contains(course.Id); *@
+
+                    @* <article onclick="location.href='@Url.Action("Details", "Courses", new {id = course.Id})'" class="card shadow-s"> *@
+                        <article class="card shadow-s">
+                        <div class="top-wrapper">
+                            <img src="~/images/@course.ImageName" alt="" class="img" />
+                            @if (course.IsBestseller)
+                            {
+                                <span class="card-badge text-s">Best Seller</span>
+                            }
+                            @*                             
+                            @if (isCourseSaved)
+                            {
+                                <a asp-action="RemoveCourse" asp-controller="Courses" asp-route-courseId="@course.Id" class="card-save"><i class="fa-solid fa-bookmark"></i></a>
+                                }
+                                else
+                                {
+                                <a asp-action="JoinCourse" asp-controller="Courses" asp-route-courseId="@course.Id" class="card-save"><i class="fa-regular fa-bookmark"></i></a>
+                            } *@
+                            <a asp-action="JoinCourse" asp-controller="Courses" asp-route-courseId="@course.Id" class="card-save"><i class="fa-regular fa-bookmark"></i></a>
+                        </div>
+                        <div class="bottom-wrapper">
+                            <div class="text-wrapper">
+                                <h5 class="h5">@course.Title</h5>
+                                <p class="text-s">@course.Author</p>
+                                @if (course.DiscountPrice != null)
+                                {
+                                    <div class="price-wrapper">
+                                        <p class="h6 discount">$@course.DiscountPrice </p>
+                                        <p class="h6 ord">$@course.Price</p>
+                                        <br />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="h6">$@course.Price</p>
+                                }
+                            </div>
+                            <div class="meta-wrapper">
+                                <p class="text-s"><i class="fa-light fa-clock"></i> @course.Hours hours</p>
+                                <p class="text-s"><i class="fa-light fa-thumbs-up"></i> @course.LikesInPercent % (@course.LikesInNumbers K)</p>
+                            </div>
+                        </div>
+                    </article>
+                }
+            }
+        </div>
+
+    </div>
+</section>
+
+@code {
+    private CourseModel[]? courses;
+    private string LoadingMessage = "Loading...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            courses = await Http.GetFromJsonAsync<CourseModel[]>("courseprovider-win23jsbackend-annhelenlausmaa.azurewebsites.net/api/courses");
+        } 
+        catch (Exception ex)
+        {
+            LoadingMessage = "No courses found";
+        }
+    }
+
+    private class CourseModel
+    {
+        public int Id { get; set; }
+        public string Title { get; set; } = null!;
+        public string? ImageName { get; set; }
+        public string? Price { get; set; }
+        public string? DiscountPrice { get; set; }
+        public string? Hours { get; set; }
+        public bool IsBestseller { get; set; }
+        public string? LikesInNumbers { get; set; }
+        public string? LikesInPercent { get; set; }
+        public string? Author { get; set; }
+        public string? Category { get; set; }
+        public int? CategoryId { get; set; }
+    }
+}
