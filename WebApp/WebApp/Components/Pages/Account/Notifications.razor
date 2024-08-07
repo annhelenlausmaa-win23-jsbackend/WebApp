@@ -1,0 +1,104 @@
+﻿@page "/account/notifications"
+
+
+<h1 class="h1 desktop-heading">Notifications</h1>
+
+<EditForm class="basic-info-form" Model="Input" FormName="NotificationsForm" OnValidSubmit="OnValidSubmitAsync" method="post" novalidate>
+    <DataAnnotationsValidator />
+    <h5 class="h5 colored-subheading">Basic Info</h5>
+
+    <div class="input-wrapper">
+        <div class="input-top-wrapper">
+            <label class="h6 label" for="email">Email</label>
+        <ValidationMessage For="() => Input.Email" class="text-s span" />
+        </div>
+    <InputText @bind-Value="Input.Email" class="input" autocomplete="email" aria-required="true" placeholder="" />
+    </div>
+
+    <div class="checkbox-wrapper">
+        <div class="btn-switch">
+            <label class="switch" for="Input.Subscribe">
+                <InputCheckbox @bind-Value="Input.Subscribe" class="checkbox" role="switch" id="toggle-btn-subscribe" />
+                <span class="slider"></span>
+            </label>
+            <span>Use dark mode theme in application</span>
+        </div>
+    </div>
+
+    <div class="checkbox-wrapper">
+        <div class="btn-switch">
+            <label class="switch" for="Input.DarkTheme">
+                <InputCheckbox @bind-Value="Input.DarkTheme" class="checkbox" id="toggle-btn-dark"/>
+                <span class="slider"></span>
+            </label>
+            <span>Use dark mode theme in application</span>
+        </div>
+    </div>
+
+    <div class="button-wrapper">
+        <button type="reset" class="btn-gray button">Cancel</button>
+        <button type="submit" class="btn-theme button">Save changes</button>
+    </div>
+</EditForm>
+
+
+
+@code {
+
+    [SupplyParameterFromForm]
+    private NotificationInput Input { get; set; } = new();
+
+    private void UpdateEmail()
+    {
+        //om användaren fyllt i en ny epost - uppdatera
+        //annars skapa en ny
+    }
+
+    private void toggleSubscription()
+    {
+        Input.Subscribe = !Input.Subscribe;
+    }
+
+    private void toggleTheme()
+    {
+        Input.DarkTheme = !Input.DarkTheme;
+    }
+
+
+    private async Task OnValidSubmitAsync()
+    {
+        if(Input.Email != null && Input.Subscribe == true)
+        {
+            try
+            {
+                HttpResponseMessage? result = await Http.PostAsJsonAsync("http://subsribeprovider.se", Input); //LÄGG IN URL VART DET SKA POSTAS
+                if (result.IsSuccessStatusCode)
+                {
+                    NavigationManager.NavigateTo("/account/notifications");
+                }
+            }
+            catch
+            {
+                //GÖR NÅT OM DET EJ LYCKAS
+            }
+            
+        }
+    }
+
+
+
+    private sealed class NotificationInput
+    {
+        [Display(Name = "E-mail")]
+        [Required(ErrorMessage = "You must enter an e-mail")]
+        [RegularExpression("^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$", ErrorMessage = "Invalid e-mail format")]
+        [DataType(DataType.EmailAddress)]
+        public string Email { get; set; } = null!;
+
+        [Display(Name = "Subscribe to newsletter")]
+        public bool Subscribe { get; set; } = false;
+
+        [Display(Name = "Use dark mode theme in application")]
+        public bool DarkTheme { get; set; } = false;
+    }
+}

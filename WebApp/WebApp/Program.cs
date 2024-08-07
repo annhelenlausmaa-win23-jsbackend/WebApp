@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using WebApp;
 using WebApp.Client.Pages;
 using WebApp.Components;
 using WebApp.Components.Account;
 using WebApp.Data;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,8 +15,9 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<IdentityUserAccessor>();
+builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
-builder.Services.AddHttpClient();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -30,7 +31,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+builder.Services.AddIdentityCore<ApplicationUser>(options => 
+{
+    options.SignIn.RequireConfirmedAccount = false;
+    options.User.RequireUniqueEmail = true;
+})
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
@@ -44,7 +49,9 @@ builder.Services.ConfigureApplicationCookie(x =>
     x.SlidingExpiration = true;
 });
 
-//builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -71,7 +78,8 @@ app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode();
     //.AddAdditionalAssemblies(typeof(Counter).Assembly);
 
+
 // Add additional endpoints required by the Identity /Account Razor components.
-//app.MapAdditionalIdentityEndpoints();
+app.MapAdditionalIdentityEndpoints();
 
 app.Run();

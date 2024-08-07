@@ -1,6 +1,7 @@
-﻿@* @page "/Account/Manage/GenerateRecoveryCodes"
+﻿@page "/Account/Manage/GenerateRecoveryCodes"
 
 @using Microsoft.AspNetCore.Identity
+@using WebApp.Components.Account.Shared
 @using WebApp.Data
 
 @inject UserManager<ApplicationUser> UserManager
@@ -66,4 +67,3 @@ else
         Logger.LogInformation("User with ID '{UserId}' has generated new 2FA recovery codes.", userId);
     }
 }
- *@

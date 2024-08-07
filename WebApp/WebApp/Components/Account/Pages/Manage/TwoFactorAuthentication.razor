@@ -1,7 +1,8 @@
-﻿@* @page "/Account/Manage/TwoFactorAuthentication"
+﻿@page "/Account/Manage/TwoFactorAuthentication"
 
 @using Microsoft.AspNetCore.Http.Features
 @using Microsoft.AspNetCore.Identity
+@using WebApp.Components.Account.Shared
 @using WebApp.Data
 
 @inject UserManager<ApplicationUser> UserManager
@@ -99,4 +100,3 @@ else
             HttpContext);
     }
 }
- *@

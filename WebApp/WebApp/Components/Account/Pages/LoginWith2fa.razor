@@ -1,7 +1,8 @@
-﻿@* @page "/Account/LoginWith2fa"
+﻿@page "/Account/LoginWith2fa"
 
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Identity
+@using WebApp.Components.Account.Shared
 @using WebApp.Data
 
 @inject SignInManager<ApplicationUser> SignInManager
@@ -99,4 +100,3 @@
         public bool RememberMachine { get; set; }
     }
 }
- *@

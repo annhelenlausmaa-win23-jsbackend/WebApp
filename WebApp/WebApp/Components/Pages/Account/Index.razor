@@ -46,21 +46,21 @@ else
         <div class="input-pair-wrapper">
             <div class="input-wrapper">
                 <div class="input-top-wrapper">
-                    <label class="h6 label" for="email"></label>
+                    <label class="h6 label" for="email">Email</label>
                     <ValidationMessage For="() => DetailsInput.Email" class="text-s span" />
                 </div>
                 <InputText @bind-Value="DetailsInput.Email" class="input" autocomplete="email" aria-required="true" placeholder="" />
             </div>
             <div class="input-wrapper">
                 <div class="input-top-wrapper">
-                    <label class="h6 label" for="DetailsInput.PhoneNumber"></label>
+                    <label class="h6 label" for="DetailsInput.PhoneNumber">Phone number</label>
                 </div>
                 <InputText @bind-Value="DetailsInput.PhoneNumber" class="input" autocomplete="phonenumber" aria-required="true" placeholder="" />
             </div>
         </div>
         <div class="input-wrapper">
             <div class="input-top-wrapper">
-                <label class="h6 label" for="DetailsInput.Biography"></label>
+                <label class="h6 label" for="DetailsInput.Biography">Biography</label>
             </div>
             <InputTextArea @bind-Value="DetailsInput.Biography" class="input" autocomplete="biograpfy" aria-required="true" placeholder="" />
         </div>

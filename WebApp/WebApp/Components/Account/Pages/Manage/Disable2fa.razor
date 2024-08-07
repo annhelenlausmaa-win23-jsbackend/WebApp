@@ -1,6 +1,7 @@
-﻿@* @page "/Account/Manage/Disable2fa"
+﻿@page "/Account/Manage/Disable2fa"
 
 @using Microsoft.AspNetCore.Identity
+@using WebApp.Components.Account.Shared
 @using WebApp.Data
 
 @inject UserManager<ApplicationUser> UserManager
@@ -62,4 +63,3 @@
             HttpContext);
     }
 }
- *@
