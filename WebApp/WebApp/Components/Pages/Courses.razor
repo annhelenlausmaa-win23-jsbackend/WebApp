@@ -41,7 +41,7 @@
                     @* <article onclick="location.href='@Url.Action("Details", "Courses", new {id = course.Id})'" class="card shadow-s"> *@
                         <article class="card shadow-s">
                         <div class="top-wrapper">
-                            <img src="~/images/@course.ImageName" alt="" class="img" />
+                            <img src="~/images/@course.ImageUri" alt="" class="img" />
                             @if (course.IsBestseller)
                             {
                                 <span class="card-badge text-s">Best Seller</span>
@@ -88,14 +88,14 @@
 </section>
 
 @code {
-    private CourseModel[]? courses;
+    private CourseCardModel[]? courses;
     private string LoadingMessage = "Loading...";
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            courses = await Http.GetFromJsonAsync<CourseModel[]>(Environment.GetEnvironmentVariable("COURSES_URI"));
+            courses = await Http.GetFromJsonAsync<CourseCardModel[]>(Environment.GetEnvironmentVariable("COURSES_URI"));
         } 
         catch (Exception)
         {
@@ -103,11 +103,11 @@
         }
     }
 
-    private class CourseModel
+    private class CourseCardModel
     {
         public int Id { get; set; }
         public string Title { get; set; } = null!;
-        public string? ImageName { get; set; }
+        public string? ImageUri { get; set; }
         public string? Price { get; set; }
         public string? DiscountPrice { get; set; }
         public string? Hours { get; set; }
