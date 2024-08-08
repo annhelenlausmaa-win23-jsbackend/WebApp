@@ -1,11 +1,22 @@
 ﻿@page "/account/notifications"
 
-
 <h1 class="h1 desktop-heading">Notifications</h1>
-
 <EditForm class="basic-info-form" Model="Input" FormName="NotificationsForm" OnValidSubmit="OnValidSubmitAsync" method="post" novalidate>
     <DataAnnotationsValidator />
     <h5 class="h5 colored-subheading">Basic Info</h5>
+
+    @if (!string.IsNullOrEmpty(StatusMessage))
+    {
+        <div class="success">
+            <p>@StatusMessage</p>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <div class="alert">
+            <p>@ErrorMessage</p>
+        </div>
+    }
 
     <div class="input-wrapper">
         <div class="input-top-wrapper">
@@ -16,23 +27,31 @@
     </div>
 
     <div class="checkbox-wrapper">
-        <div class="btn-switch">
+@*         <div class="btn-switch">
             <label class="switch" for="Input.Subscribe">
                 <InputCheckbox @bind-Value="Input.Subscribe" class="checkbox" role="switch" id="toggle-btn-subscribe" />
                 <span class="slider"></span>
             </label>
-            <span>Use dark mode theme in application</span>
-        </div>
+            <span>Subscribe to newsletter</span>
+        </div> *@
+        <label  for="Input.Subscribe">
+            <InputCheckbox @bind-Value="Input.Subscribe" class="checkbox" role="switch" id="toggle-btn-subscribe" />
+            <span>Subscribe to newsletter</span>
+        </label>
     </div>
 
     <div class="checkbox-wrapper">
-        <div class="btn-switch">
+@*         <div class="btn-switch">
             <label class="switch" for="Input.DarkTheme">
                 <InputCheckbox @bind-Value="Input.DarkTheme" class="checkbox" id="toggle-btn-dark"/>
                 <span class="slider"></span>
             </label>
             <span>Use dark mode theme in application</span>
-        </div>
+        </div> *@
+        <label class="switch" for="Input.DarkTheme">
+            <InputCheckbox @bind-Value="Input.DarkTheme" class="checkbox" id="toggle-btn-dark" />
+            <span>Use dark mode theme in application</span>
+        </label>
     </div>
 
     <div class="button-wrapper">
@@ -44,48 +63,80 @@
 
 
 @code {
+    private ApplicationUser user = default!;
+    private string? StatusMessage;
+    private string? ErrorMessage;
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
 
     [SupplyParameterFromForm]
     private NotificationInput Input { get; set; } = new();
 
-    private void UpdateEmail()
+    protected override async Task OnInitializedAsync()
     {
-        //om användaren fyllt i en ny epost - uppdatera
-        //annars skapa en ny
+        user = await UserManager.GetUserAsync(HttpContext.User) ?? null!;
+        Input.Email = user.Email!;
+
+        //hämta och se om user.Email finns i subscriber db
+        //sätt Input.Subscribe efter resultatet
     }
 
-    private void toggleSubscription()
+    private async Task UpdateEmail()
     {
-        Input.Subscribe = !Input.Subscribe;
+        //uppdatera user.Email i account db
     }
 
-    private void toggleTheme()
+    private async Task Subscribe()
     {
-        Input.DarkTheme = !Input.DarkTheme;
+        try
+        {
+            SubscribeModel subscriber = new SubscribeModel();
+            subscriber.Email = Input.Email;
+            HttpResponseMessage? result = await Http.PostAsJsonAsync("https://subscribeprovider-ahl.azurewebsites.net/api/Subscribe?code=zMWJPJ2PCmaf3cYfSEQbZ95rjfNvJ_mlFXY6SdngeeyWAzFuY7d0rw%3D%3D", subscriber);
+            if (result.IsSuccessStatusCode)
+            {
+                StatusMessage = "Notifications have been updated";
+            }
+            if (user.Email != Input.Email)
+            {
+                await Unsubscribe(user.Email!);
+            }
+        }
+        catch { ErrorMessage = "Something went wrong. Please try later."; }
     }
 
+    private async Task Unsubscribe(string email)
+    {
+        try
+        {
+            //se om eposten finns i subscribe db ( - skapa en GetOneSubscriber i API )
+            //om den finns - ta bort
+            //annars gör ingenting
+
+            StatusMessage = "Notifications have been updated";
+        }
+        catch { ErrorMessage = "Something went wrong. Please try later."; }
+    }
 
     private async Task OnValidSubmitAsync()
     {
+        if (user.Email != Input.Email)
+            await UpdateEmail();
         if(Input.Email != null && Input.Subscribe == true)
+            await Subscribe();
+        else if (Input.Email != null && Input.Subscribe == false)
+            await Unsubscribe(Input.Email);
+
+        if (Input.DarkTheme)
         {
-            try
-            {
-                HttpResponseMessage? result = await Http.PostAsJsonAsync("http://subsribeprovider.se", Input); //LÄGG IN URL VART DET SKA POSTAS
-                if (result.IsSuccessStatusCode)
-                {
-                    NavigationManager.NavigateTo("/account/notifications");
-                }
-            }
-            catch
-            {
-                //GÖR NÅT OM DET EJ LYCKAS
-            }
-            
-        }
+            //sätt temat till mörkt
+        } 
+        else
+        {
+            //sätt temat till ljust
+        }    
     }
-
-
 
     private sealed class NotificationInput
     {
