@@ -1,4 +1,5 @@
 ﻿@page "/account/notifications"
+@using System.Net
 
 <h1 class="h1 desktop-heading">Notifications</h1>
 <EditForm class="basic-info-form" Model="Input" FormName="NotificationsForm" OnValidSubmit="OnValidSubmitAsync" method="post" novalidate>
@@ -78,8 +79,15 @@
         user = await UserManager.GetUserAsync(HttpContext.User) ?? null!;
         Input.Email = user.Email!;
 
-        //hämta och se om user.Email finns i subscriber db
-        //sätt Input.Subscribe efter resultatet
+        //hämta och se om user.Email finns i subscriber db ( - skapa en GetOneSubscriber i API )
+        // HttpResponseMessage? response = await Http.GetAsync("https://subscribeprovider-ahl.azurewebsites.net/api/"); //BYT TILL RÄTT ADRESS
+       
+        var response = new HttpResponseMessage(HttpStatusCode.OK);  //simulerar ett ja
+
+        if (response.IsSuccessStatusCode)
+            {
+                Input.Subscribe = true;
+            }
     }
 
     private async Task UpdateEmail()
@@ -135,7 +143,7 @@
         else
         {
             //sätt temat till ljust
-        }    
+        }  
     }
 
     private sealed class NotificationInput
