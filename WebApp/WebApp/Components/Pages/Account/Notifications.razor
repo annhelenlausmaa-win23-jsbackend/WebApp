@@ -1,66 +1,74 @@
 ﻿@page "/account/notifications"
-@using System.Net
 
-<h1 class="h1 desktop-heading">Notifications</h1>
-<EditForm class="basic-info-form" Model="Input" FormName="NotificationsForm" OnValidSubmit="OnValidSubmitAsync" method="post" novalidate>
-    <DataAnnotationsValidator />
-    <h5 class="h5 colored-subheading">Basic Info</h5>
+@attribute [StreamRendering]
 
-    @if (!string.IsNullOrEmpty(StatusMessage))
-    {
-        <div class="success">
-            <p>@StatusMessage</p>
+
+@if(user == null)
+{
+    <p>Loading... </p>
+}
+else
+{
+    <h1 class="h1 desktop-heading">Notifications</h1>
+    <EditForm class="basic-info-form" Model="Input" FormName="NotificationsForm" OnValidSubmit="OnValidSubmitAsync" method="post" novalidate>
+        <DataAnnotationsValidator />
+        <h5 class="h5 colored-subheading">Basic Info</h5>
+
+        @if (!string.IsNullOrEmpty(StatusMessage))
+        {
+            <div class="success">
+                <p>@StatusMessage</p>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert">
+                <p>@ErrorMessage</p>
+            </div>
+        }
+
+        <div class="input-wrapper">
+            <div class="input-top-wrapper">
+                <label class="h6 label" for="email">Email</label>
+            <ValidationMessage For="() => Input.Email" class="text-s span" />
+            </div>
+        <InputText @bind-Value="Input.Email" class="input" autocomplete="email" aria-required="true" placeholder="" />
         </div>
-    }
-    @if (!string.IsNullOrEmpty(ErrorMessage))
-    {
-        <div class="alert">
-            <p>@ErrorMessage</p>
-        </div>
-    }
 
-    <div class="input-wrapper">
-        <div class="input-top-wrapper">
-            <label class="h6 label" for="email">Email</label>
-        <ValidationMessage For="() => Input.Email" class="text-s span" />
-        </div>
-    <InputText @bind-Value="Input.Email" class="input" autocomplete="email" aria-required="true" placeholder="" />
-    </div>
-
-    <div class="checkbox-wrapper">
-@*         <div class="btn-switch">
-            <label class="switch" for="Input.Subscribe">
-                <InputCheckbox @bind-Value="Input.Subscribe" class="checkbox" role="switch" id="toggle-btn-subscribe" />
-                <span class="slider"></span>
+        <div class="checkbox-wrapper">
+    @*         <div class="btn-switch">
+                <label class="switch" for="Input.Subscribe">
+                    <InputCheckbox @bind-Value="Input.Subscribe" class="checkbox" role="switch" id="toggle-btn-subscribe" />
+                    <span class="slider"></span>
+                </label>
+                <span>Subscribe to newsletter</span>
+            </div> *@
+            <label  for="subscribe">
+                <InputCheckbox @bind-Value="Input.Subscribe" checked="@Input.Subscribe" class="checkbox" id="toggle-btn-subscribe" />
+                <span>Subscribe to newsletter</span>
             </label>
-            <span>Subscribe to newsletter</span>
-        </div> *@
-        <label  for="Input.Subscribe">
-            <InputCheckbox @bind-Value="Input.Subscribe" class="checkbox" role="switch" id="toggle-btn-subscribe" />
-            <span>Subscribe to newsletter</span>
-        </label>
-    </div>
+        </div>
 
-    <div class="checkbox-wrapper">
-@*         <div class="btn-switch">
-            <label class="switch" for="Input.DarkTheme">
-                <InputCheckbox @bind-Value="Input.DarkTheme" class="checkbox" id="toggle-btn-dark"/>
-                <span class="slider"></span>
+        <div class="checkbox-wrapper">
+    @*         <div class="btn-switch">
+                <label class="switch" for="Input.DarkTheme">
+                    <InputCheckbox @bind-Value="Input.DarkTheme" class="checkbox" id="toggle-btn-dark"/>
+                    <span class="slider"></span>
+                </label>
+                <span>Use dark mode theme in application</span>
+            </div> *@
+            <label class="switch" for="darkTheme">
+                <InputCheckbox @bind-Value="Input.DarkTheme" class="checkbox" id="toggle-btn-dark" />
+                <span>Use dark mode theme in application</span>
             </label>
-            <span>Use dark mode theme in application</span>
-        </div> *@
-        <label class="switch" for="Input.DarkTheme">
-            <InputCheckbox @bind-Value="Input.DarkTheme" class="checkbox" id="toggle-btn-dark" />
-            <span>Use dark mode theme in application</span>
-        </label>
-    </div>
+        </div>
 
-    <div class="button-wrapper">
-        <button type="reset" class="btn-gray button">Cancel</button>
-        <button type="submit" class="btn-theme button">Save changes</button>
-    </div>
-</EditForm>
-
+        <div class="button-wrapper">
+            <button type="reset" class="btn-gray button">Cancel</button>
+            <button type="submit"  class="btn-theme button">Save changes</button>
+        </div>
+    </EditForm>
+}
 
 
 @code {
@@ -72,22 +80,21 @@
     private HttpContext HttpContext { get; set; } = default!;
 
     [SupplyParameterFromForm]
-    private NotificationInput Input { get; set; } = new();
+    public NotificationInput Input { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
         user = await UserManager.GetUserAsync(HttpContext.User) ?? null!;
         Input.Email = user.Email!;
 
-        //hämta och se om user.Email finns i subscriber db ( - skapa en GetOneSubscriber i API )
-        // HttpResponseMessage? response = await Http.GetAsync("https://subscribeprovider-ahl.azurewebsites.net/api/"); //BYT TILL RÄTT ADRESS
-       
-        var response = new HttpResponseMessage(HttpStatusCode.OK);  //simulerar ett ja
+        SubscribeModel subscriber = new SubscribeModel();
+        subscriber.Email = Input.Email;
+        HttpResponseMessage? result = await Http.PostAsJsonAsync("https://subscribeprovider-ahl.azurewebsites.net/api/GetOneSubscriber?code=0JyCAM1v1XbWSIVCfUUgCubIk0heojGCsbmIkzgN067YAzFuyOhBug%3D%3D", subscriber);
 
-        if (response.IsSuccessStatusCode)
-            {
-                Input.Subscribe = true;
-            }
+        if (result.IsSuccessStatusCode)
+        {
+            Input.Subscribe = true;
+        }
     }
 
     private async Task UpdateEmail()
@@ -118,24 +125,45 @@
     {
         try
         {
-            //se om eposten finns i subscribe db ( - skapa en GetOneSubscriber i API )
-            //om den finns - ta bort
+            SubscribeModel subscriber = new SubscribeModel();
+            subscriber.Email = Input.Email;
+            HttpResponseMessage? result = await Http.PostAsJsonAsync("https://subscribeprovider-ahl.azurewebsites.net/api/GetOneSubscriber?code=0JyCAM1v1XbWSIVCfUUgCubIk0heojGCsbmIkzgN067YAzFuyOhBug%3D%3D", subscriber);
+            if (result.IsSuccessStatusCode)
+            {
+                HttpResponseMessage? res = await Http.PostAsJsonAsync("https://subscribeprovider-ahl.azurewebsites.net/api/Unsubscribe?code=e13gjyQ7V33qg3s6vWubc4WLrOTJKfZsCpBuIfcpChipAzFui2KU-A%3D%3D", subscriber);
+                if (res.IsSuccessStatusCode)
+                {
+                    StatusMessage = "Notifications have been updated";
+                }
+
+
+            }
             //annars gör ingenting
-
-
-            StatusMessage = "Notifications have been updated";
         }
-        catch { ErrorMessage = "Something went wrong. Please try later."; }
+        catch 
+        { 
+            ErrorMessage = "Something went wrong. Please try later.";
+        }
     }
 
     private async Task OnValidSubmitAsync()
     {
+        var test = Input.Subscribe;
         if (user.Email != Input.Email)
             await UpdateEmail();
-        if(Input.Email != null && Input.Subscribe == true)
-            await Subscribe();
-        else if (Input.Email != null && Input.Subscribe == false)
-            await Unsubscribe(Input.Email);
+
+        if(Input.Email != null)
+        {
+            if (Input.Subscribe)
+            {
+                await Subscribe();  
+            }
+            else
+            {
+                //BUG! Den når aldrig hit för value på checkboxen ändras inte trots att UI ändras visuellt
+                await Unsubscribe(Input.Email);
+            }
+        }
 
         if (Input.DarkTheme)
         {
@@ -147,7 +175,7 @@
         }  
     }
 
-    private sealed class NotificationInput
+    public class NotificationInput
     {
         [Display(Name = "E-mail")]
         [Required(ErrorMessage = "You must enter an e-mail")]
