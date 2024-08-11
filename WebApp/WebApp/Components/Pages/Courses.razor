@@ -1,7 +1,11 @@
 ﻿@page "/courses"
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
 
 @attribute [StreamRendering]
-@attribute [Authorize]
+@* @attribute [Authorize] *@
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
 
 <PageTitle>Courses</PageTitle>
 
@@ -37,12 +41,11 @@
                 @foreach (var course in courses)
                 {
                     @* bool isCourseSaved = savedCourses.Contains(course.Id); *@
-
-                    @* <article onclick="location.href='@Url.Action("Details", "Courses", new {id = course.Id})'" class="card shadow-s"> *@
-                        <article class="card shadow-s">
+                    <article class="card shadow-s" @onclick="() => NavigateToCoursePage(course.Id)" style="cursor: pointer;">
+   
                         <div class="top-wrapper">
-                            <img src="~/images/@course.ImageUri" alt="" class="img" />
-                            @if (course.IsBestseller)
+                            <img src="/images/@course.ImageUri" alt="" class="img" />
+                            @if (course.IsBestSeller)
                             {
                                 <span class="card-badge text-s">Best Seller</span>
                             }
@@ -60,23 +63,23 @@
                         <div class="bottom-wrapper">
                             <div class="text-wrapper">
                                 <h5 class="h5">@course.Title</h5>
-                                <p class="text-s">@course.Author</p>
-                                @if (course.DiscountPrice != null)
+                                <p class="text-s">@course.Authors[0].Name</p>
+                                @if (course.Prices.Discount.HasValue)
                                 {
                                     <div class="price-wrapper">
-                                        <p class="h6 discount">$@course.DiscountPrice </p>
-                                        <p class="h6 ord">$@course.Price</p>
+                                        <p class="h6 discount">$@course.Prices.Discount </p>
+                                        <p class="h6 ord">$@course.Prices.Price</p>
                                         <br />
                                     </div>
                                 }
                                 else
                                 {
-                                    <p class="h6">$@course.Price</p>
+                                    <p class="h6">$@course.Prices.Price</p>
                                 }
                             </div>
                             <div class="meta-wrapper">
                                 <p class="text-s"><i class="fa-light fa-clock"></i> @course.Hours hours</p>
-                                <p class="text-s"><i class="fa-light fa-thumbs-up"></i> @course.LikesInPercent % (@course.LikesInNumbers K)</p>
+                                <p class="text-s"><i class="fa-light fa-thumbs-up"></i> @course.LikesInPercent % (@course.Likes K)</p>
                             </div>
                         </div>
                     </article>
@@ -88,14 +91,30 @@
 </section>
 
 @code {
-    private CourseCardModel[]? courses;
+    private CourseModel[]? courses;
     private string LoadingMessage = "Loading...";
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            courses = await Http.GetFromJsonAsync<CourseCardModel[]>(Environment.GetEnvironmentVariable("COURSES_URI"));
+
+            GraphQLQuery query = new GraphQLQuery { Query = "{ getCourses{ id title isBestSeller authors{ name } categories prices{ price currency discount } hours likesInPercent likes }}"};
+
+            // HttpResponseMessage response = await Http.PostAsJsonAsync(Environment.GetEnvironmentVariable("COURSES_URI"), query);
+            HttpResponseMessage response = await Http.PostAsJsonAsync("https://courseprovider-ahl.azurewebsites.net/api/graphql?code=SbqqnG8cDNM1JmgFy6aoiPnhfuQRs1AEWtbZAdVZG61gAzFuFig6RA%3D%3D", query);
+            string jsonString = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonData = JObject.Parse(jsonString);
+                var coursesJson = jsonData["data"]?["getCourses"]?.ToString();
+
+                if (coursesJson != null)
+                {
+                    courses = JsonConvert.DeserializeObject<CourseModel[]>(coursesJson);
+                }
+                
+            }
         } 
         catch (Exception)
         {
@@ -103,19 +122,9 @@
         }
     }
 
-    private class CourseCardModel
+    private void NavigateToCoursePage(string courseId)
     {
-        public int Id { get; set; }
-        public string Title { get; set; } = null!;
-        public string? ImageUri { get; set; }
-        public string? Price { get; set; }
-        public string? DiscountPrice { get; set; }
-        public string? Hours { get; set; }
-        public bool IsBestseller { get; set; }
-        public string? LikesInNumbers { get; set; }
-        public string? LikesInPercent { get; set; }
-        public string? Author { get; set; }
-        public string? Category { get; set; }
-        public int? CategoryId { get; set; }
+        NavigationManager.NavigateTo($"/singlecourse?id={courseId}");
     }
 }
+

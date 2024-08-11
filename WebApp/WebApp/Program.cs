@@ -29,6 +29,19 @@ builder.Services.AddAuthentication(options =>
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+///EJ KLART!!!!!!!!!!!!!!!!!!!!!! - byt ut till pooled dbContext???
+//builder.Services.AddPooledDbContextFactory<ApplicationDbContext>(options =>
+//    options.UseSqlServer(connectionString));
+//var sp = builder.Services.BuildServiceProvider();
+//using var scope = sp.CreateScope();
+//var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
+//using var context = dbContextFactory.CreateDbContext();
+//context.Database.EnsureCreated();
+
+
+
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => 

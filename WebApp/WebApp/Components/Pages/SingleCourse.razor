@@ -1,0 +1,221 @@
+﻿@page "/singlecourse"
+
+@attribute [StreamRendering]
+
+
+<PageTitle>Single Course</PageTitle>
+
+@if(course != null)
+{
+    <section class="section single-course-top-section" style="background-image: url('../../../images/@course.ImageUri'); background-size: cover;">
+        <div class="content">
+            <div class="badge-wrapper">
+                @if (course.IsBestSeller)
+                {
+                    <p class="is-bestseller">Best Seller</p>
+                }
+                <p class="type">Digital</p>
+            </div>
+            <h1 class="h1">@course.Title</h1>
+            <p>Egestas feugiat lorem eu neque suspendisse ullamcorper scelerisque aliquam mauris.</p>
+            <div class="meta-wrapper">
+                <p class="text-m">
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-solid fa-star"></i>
+                    <i class="fa-regular fa-star"></i>
+                    (1.21K reviews)
+                </p>
+                <p>|</p>
+                <p class="text-m"><i class="fa-light fa-thumbs-up"></i> @course.Likes K likes</p>
+                <p>|</p>
+                <p class="text-m"><i class="fa-light fa-clock"></i> @course.Hours hours</p>
+            </div>
+            <div class="author-wrapper">
+                <img src="/images/profile_image.svg" alt="">
+                <div>
+                    <p class="h6">Created by</p>
+                    <p class="text-m">@course.Authors?[0].Name</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section single-course-info-section">
+        <div class="content">
+            <div class="top-wrapper">
+                <div class="right-wrapper">
+                    <h1 class="h1">Course Description</h1>
+                    <p class="text-m">@course.Content?.Description</p>
+                    <h3 class="h3 learning-heading">What you'll learn</h3>
+                    <div class="learning-wrapper">
+                        <div class="learning">
+                            <i class="fa-regular fa-circle-check"></i>
+                            <p class="text-m">Sed lectus donec amet eu turpis interdum.</p>
+                        </div>
+                        <div class="learning">
+                            <i class="fa-regular fa-circle-check"></i>
+                            <p class="text-m">Nulla at consectetur vitae dignissim porttitor.</p>
+                        </div>
+                        <div class="learning">
+                            <i class="fa-regular fa-circle-check"></i>
+                            <p class="text-m">Phasellus id vitae dui aliquet mi.</p>
+                        </div>
+                        <div class="learning">
+                            <i class="fa-regular fa-circle-check"></i>
+                            <p class="text-m">Integer cursus vitae, odio feugiat iaculis aliquet diam, et purus.</p>
+                        </div>
+                        <div class="learning">
+                            <i class="fa-regular fa-circle-check"></i>
+                            <p class="text-m">In aenean dolor diam tortor orci eu.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <aside class="aside">
+                    <h4 class="h4">This course includes:</h4>
+                    <div class="includes-wrapper">
+                        @if(course.Content?.Includes != null)
+                        {
+                            @foreach(var include in course.Content.Includes)
+                            {
+                                <div class="include">
+                                    <i class="fa-light fa-clapperboard-play"></i>
+                                    <p class="text-m">@include</p>
+                                </div>
+                            }    
+                        }
+                    </div>
+                    <div class="price-wrapper">
+                        @if(course.Prices != null)
+                        {
+                            @if (course.Prices.Discount != null)
+                            {
+                                <p class="h2">$@course.Prices.Discount</p>
+                                <p class="text-xl discount">$@course.Prices.Price</p>
+                            }
+                            else
+                            {
+                                <p class="h2">$@course.Prices.Price</p>
+                            }
+                        }
+                    </div>
+                    <a asp-action="JoinCourse" asp-controller="Courses" asp-route-courseId="@course.Id" class="btn-theme-s">Join course</a>
+                </aside>
+            </div>
+
+            <div class="bottom-wrapper">
+                <h1 class="h1 details-heading">Program Details</h1>
+                <div class="details-wrapper">
+                        @if (course.Content?.ProgramDetails != null)
+                        {
+                            @for (int i = 0; i < course.Content.ProgramDetails.Count; i++)
+                            {
+                                var detail = course.Content.ProgramDetails[i];
+                                <div class="detail">
+                                    <p class="number h4">@(i + 1)</p>
+                                    <div class="detail-info-wrapper">
+                                        <h4 class="h4">@detail.Title</h4>
+                                        <p class="text-m">@detail.Description</p>
+                                    </div>
+                                 </div>
+                            }                          
+                        }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section single-course-author-section">
+        <div class="content">
+            <div class="text-wrapper">
+                <div class="text-content">
+                    <p class="text-xl intro-span">Learn from the best</p>
+                    <h1 class="h1 heading">@course.Authors?[0].Name</h1>
+                    <p class="text-m copy">Dolor ipsum amet cursus quisque porta adipiscing. Lorem convallis malesuada sed maecenas. Ac dui at vitae mauris cursus in nullam porta sem. Quis pellentesque elementum ac bibendum. Nunc aliquam in tortor facilisis. Vulputate eget risus, metus phasellus. Pellentesque faucibus amet, eleifend diam quam condimentum convallis ultricies placerat. Duis habitasse placerat amet, odio pellentesque rhoncus, feugiat at. Eget pellentesque tristique felis magna fringilla.</p>
+                    <div class="meta-wrapper">
+                        <p class="meta-yt"><i class="fa-brands fa-youtube"></i> 240k subscribers</p>
+                        <p class="meta-fb"><i class="fa-brands fa-facebook"></i> 180k followers</p>
+                    </div>
+                </div>
+            </div>
+            <div class="img-wrapper">
+                <img src="/images/profile_image_square.svg" alt="" class="author-img">
+            </div>
+        </div>
+    </section>
+
+}
+else
+{
+    <p>loading</p>
+}
+
+
+@code {
+    [SupplyParameterFromQuery]
+    private string? Id { get; set; }
+
+    private CourseModel? course;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            GraphQLQuery query = new GraphQLQuery {
+                Query = $@"{{ getCourse(id: ""{Id}"") {{
+                        id
+                        imageUri
+                        imageHeaderUri
+                        isBestSeller
+                        isDigital
+                        categories
+                        title
+                        ingress
+                        starRating
+                        reviews
+                        likesInPercent
+                        likes
+                        hours
+                        authors {{
+                            name
+                        }}
+                        prices {{
+                            currency
+                            price
+                            discount
+                        }}
+                        content {{
+                            description
+                            includes
+                            programDetails {{
+                            id
+                            title
+                            description
+                            }}
+                        }}
+                        }}
+                    }}"
+            };
+
+            HttpResponseMessage response = await Http.PostAsJsonAsync("https://courseprovider-ahl.azurewebsites.net/api/graphql?code=SbqqnG8cDNM1JmgFy6aoiPnhfuQRs1AEWtbZAdVZG61gAzFuFig6RA%3D%3D", query);
+            string jsonString = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonData = JObject.Parse(jsonString);
+                var courseJson = jsonData["data"]?["getCourse"]?.ToString();
+
+                if (courseJson != null)
+                {
+                    course = JsonConvert.DeserializeObject<CourseModel>(courseJson);
+                }
+
+            }
+        }
+        catch
+        {
+            
+        }
+    }
+}

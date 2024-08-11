@@ -2014,6 +2014,7 @@ form .button {
 .single-course-info-section .content .bottom-wrapper .details-wrapper .detail {
   display: flex;
   gap: 30px;
+  width: 100%;
 }
 .single-course-info-section .content .bottom-wrapper .details-wrapper .detail .number {
   display: flex;
