@@ -1,17 +1,17 @@
 ﻿<header class="section header-section">
     <div class="content">
         <div class="left-wrapper">
-@*             @if (isDark)
+            @*             
+            @if (isDark)
             {
                 <a asp-controller="Home" asp-action="Index"><img src="/images/header_logo_desktop_dark.svg"></a>
             }
             else
             {
                 <a asp-controller="Home" asp-action="Index"><img src="/images/header_logo_desktop.svg"></a>
-            } *@
-
+            } 
+            *@
             <a href="/" ><img src="/images/header_logo_desktop.svg"></a>
-
             <div class="link-wrapper">
                 <NavLink class="menu-link" href="" Match="NavLinkMatch.All">Overview</NavLink>
                 <NavLink class="menu-link" href="/#features">Features</NavLink>
@@ -23,7 +23,6 @@
                 <NavLink class="menu-link" href="/contact">Contact</NavLink>
             </div>
         </div>
-
         <div class="right-wrapper">
             <i class="fa-solid fa-bars mobile-menu-btn" id="mobile-menu-btn-open"></i>
             <div class="btn-switch">
@@ -63,15 +62,16 @@
                 </div>
             </div>
             <div class="mobile-bottom">
-@*                 <div class="mobile-btn-switch">
+                @*                 
+                <div class="mobile-btn-switch">
                     <span>Light</span>
                     <label class="switch" for="toggle-btn-mobile">
                         <input type="checkbox" id="toggle-btn-mobile" checked="@isDark">
                         <span class="slider"></span>
                     </label>
                     <span>Dark</span>
-                </div> *@
-
+                </div> 
+                *@
                 <div class="mobile-btn-wrapper">
                     <AuthorizeView>
                         <Authorized>
@@ -88,6 +88,3 @@
     </div>
 </header>
 
-@code {
-
-}

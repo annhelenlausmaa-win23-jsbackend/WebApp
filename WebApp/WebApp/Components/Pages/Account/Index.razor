@@ -9,6 +9,7 @@
 
 @attribute [StreamRendering]
 
+
 <PageTitle>Details</PageTitle>
 @if (user == null)
 { 
@@ -20,17 +21,10 @@ else
     <EditForm class="basic-info-form" Model="DetailsInput" FormName="profile" OnValidSubmit="OnValidSubmitAsync" method="post" novalidate>
         <DataAnnotationsValidator/>
         <h5 class="h5 colored-subheading">Basic Info</h5>
-    @*     @if (!string.IsNullOrEmpty(ErrorMessage))
-        {
-            <div class="alert">
-                <p>@ErrorMessage</p>
-                <i class="fa-solid fa-triangle-exclamation icon"></i>
-            </div>
-        } *@
         <div class="input-pair-wrapper">
             <div class="input-wrapper">
                 <div class="input-top-wrapper">
-                    <label class="h6 label" for="firstname">First name @user.FirstName</label>
+                    <label class="h6 label" for="firstname">First name</label>
                     <ValidationMessage For="() => DetailsInput.FirstName" class="text-s span" />
                 </div>
                 <InputText @bind-Value="DetailsInput.FirstName" class="input" autocomplete="givenname" aria-required="true" placeholder="" />
@@ -71,7 +65,8 @@ else
         </div>
     </EditForm>
 
-    @* <form class="address-form" method="post" asp-controller="Account" asp-action="Details" novalidate>
+    @* 
+    <form class="address-form" method="post" asp-controller="Account" asp-action="Details" novalidate>
         <h5 class="h5 colored-subheading">Address</h5>
         <div class="input-wrapper">
             <div class="input-top-wrapper">
@@ -107,13 +102,11 @@ else
             <button type="reset" class="btn-gray button">Cancel</button>
             <button type="submit" class="btn-theme button">Save changes</button>
         </div>
-    </form> *@
+    </form> 
+    *@
 }
 @code {
-    // private string? ErrorMessage;
     private ApplicationUser user = default!;
-    private string? username;
-    private string? phoneNumber;
 
     [CascadingParameter]
     private HttpContext HttpContext { get; set; } = default!;
@@ -123,26 +116,45 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        user = await UserManager.GetUserAsync(HttpContext.User) ?? null!;
-        username = await UserManager.GetUserNameAsync(user);
-        phoneNumber = await UserManager.GetPhoneNumberAsync(user);
+        await PopulateInfoAsync();
+    }
 
-        DetailsInput.PhoneNumber ??= phoneNumber;
+    private async Task PopulateInfoAsync()
+    {
+        user = await UserManager.GetUserAsync(HttpContext.User) ?? null!;
+        if(user != null)
+        {
+            DetailsInput.FirstName = user.FirstName ?? "";
+            DetailsInput.LastName = user.LastName ?? "";
+            DetailsInput.Email = user.Email!;
+            DetailsInput.PhoneNumber = user.PhoneNumber;
+            DetailsInput.Biography = user.Biography;   
+        }
     }
 
     private async Task OnValidSubmitAsync()
     {
-        if (DetailsInput.PhoneNumber != phoneNumber)
+        if(user != null)
         {
-            var setPhoneResult = await UserManager.SetPhoneNumberAsync(user, DetailsInput.PhoneNumber);
-            if (!setPhoneResult.Succeeded)
+            ApplicationUser userToUpdate = await UserManager.FindByIdAsync(user.Id);
+            var test = DetailsInput;
+            if (userToUpdate != null)
             {
-                // RedirectManager.RedirectToCurrentPageWithStatus("Error: Failed to set phone number.", HttpContext);
-            }
-        }
+                userToUpdate.FirstName = DetailsInput.FirstName;
+                userToUpdate.LastName = DetailsInput.LastName;
+                userToUpdate.Email = DetailsInput.Email;
+                userToUpdate.PhoneNumber = DetailsInput.PhoneNumber;
+                userToUpdate.Biography = DetailsInput.Biography;
 
-        await SignInManager.RefreshSignInAsync(user);
-        // RedirectManager.RedirectToCurrentPageWithStatus("Your profile has been updated", HttpContext);
+                IdentityResult? result = await UserManager.UpdateAsync(userToUpdate);
+                if (result.Succeeded)
+                {
+                    NavigationManager.NavigateTo("/");
+                }
+            } 
+
+            await SignInManager.RefreshSignInAsync(user);
+        }
     }
 
     private sealed class DetailsInputModel
@@ -172,6 +184,5 @@ else
         [Display(Name = "Biography")]
         [DataType(DataType.Text)]
         public string? Biography { get; set; }
-
     }
 }

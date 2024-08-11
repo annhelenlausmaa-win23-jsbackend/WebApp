@@ -1,7 +1,7 @@
 ﻿@page "/singlecourse"
 
 @attribute [StreamRendering]
-
+@attribute [Authorize]
 
 <PageTitle>Single Course</PageTitle>
 
@@ -90,7 +90,7 @@
                     <div class="price-wrapper">
                         @if(course.Prices != null)
                         {
-                            @if (course.Prices.Discount != null)
+                            @if (course.Prices.Discount > 0.0m)
                             {
                                 <p class="h2">$@course.Prices.Discount</p>
                                 <p class="text-xl discount">$@course.Prices.Price</p>

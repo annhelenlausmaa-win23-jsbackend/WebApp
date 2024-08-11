@@ -2,7 +2,6 @@
 
 @attribute [StreamRendering]
 
-
 @if(user == null)
 {
     <p>Loading... </p>
@@ -10,7 +9,7 @@
 else
 {
     <h1 class="h1 desktop-heading">Notifications</h1>
-    <EditForm class="basic-info-form" Model="Input" FormName="NotificationsForm" OnValidSubmit="OnValidSubmitAsync" method="post" novalidate>
+    <EditForm class="basic-info-form" Model="Input" FormName="NotificationsForm" OnValidSubmit="@(Input.Subscribe ? OnValidSubmitUnsubscribeAsync : OnValidSubmitSubscribeAsync)" method="post" novalidate>
         <DataAnnotationsValidator />
         <h5 class="h5 colored-subheading">Basic Info</h5>
 
@@ -35,14 +34,25 @@ else
         <InputText @bind-Value="Input.Email" class="input" autocomplete="email" aria-required="true" placeholder="" />
         </div>
 
+        @if (Input.Subscribe)
+        {
+            <div>
+                <span>You are registered for newsletters</span>
+                <button type="submit" class="btn-theme button">Unsubscribe</button>
+            </div>
+        }
+        else
+        {
+            <div>
+                <span>You are not registered for newsletters</span>
+                <button type="submit" class="btn-theme button">Subscribe</button>
+            </div>
+        }
+
+        @* **** BUG! **** *@
+        @* **** The value of the checkboxes never change. Using a temporary solution instead. **** *@
+        @*         
         <div class="checkbox-wrapper">
-    @*         <div class="btn-switch">
-                <label class="switch" for="Input.Subscribe">
-                    <InputCheckbox @bind-Value="Input.Subscribe" class="checkbox" role="switch" id="toggle-btn-subscribe" />
-                    <span class="slider"></span>
-                </label>
-                <span>Subscribe to newsletter</span>
-            </div> *@
             <label  for="subscribe">
                 <InputCheckbox @bind-Value="Input.Subscribe" checked="@Input.Subscribe" class="checkbox" id="toggle-btn-subscribe" />
                 <span>Subscribe to newsletter</span>
@@ -50,13 +60,6 @@ else
         </div>
 
         <div class="checkbox-wrapper">
-    @*         <div class="btn-switch">
-                <label class="switch" for="Input.DarkTheme">
-                    <InputCheckbox @bind-Value="Input.DarkTheme" class="checkbox" id="toggle-btn-dark"/>
-                    <span class="slider"></span>
-                </label>
-                <span>Use dark mode theme in application</span>
-            </div> *@
             <label class="switch" for="darkTheme">
                 <InputCheckbox @bind-Value="Input.DarkTheme" class="checkbox" id="toggle-btn-dark" />
                 <span>Use dark mode theme in application</span>
@@ -66,7 +69,10 @@ else
         <div class="button-wrapper">
             <button type="reset" class="btn-gray button">Cancel</button>
             <button type="submit"  class="btn-theme button">Save changes</button>
-        </div>
+        </div> 
+        *@
+
+
     </EditForm>
 }
 
@@ -99,7 +105,7 @@ else
 
     private async Task UpdateEmail()
     {
-        //uppdatera user.Email i account db
+        //Add logic for update user.Email in Account Db
     }
 
     private async Task Subscribe()
@@ -135,45 +141,56 @@ else
                 {
                     StatusMessage = "Notifications have been updated";
                 }
-
-
             }
-            //annars gör ingenting
         }
-        catch 
-        { 
-            ErrorMessage = "Something went wrong. Please try later.";
-        }
+        catch { ErrorMessage = "Something went wrong. Please try later."; }
     }
 
-    private async Task OnValidSubmitAsync()
+    private async Task OnValidSubmitSubscribeAsync()
     {
-        var test = Input.Subscribe;
         if (user.Email != Input.Email)
             await UpdateEmail();
 
-        if(Input.Email != null)
-        {
-            if (Input.Subscribe)
-            {
-                await Subscribe();  
-            }
-            else
-            {
-                //BUG! Den når aldrig hit för value på checkboxen ändras inte trots att UI ändras visuellt
-                await Unsubscribe(Input.Email);
-            }
-        }
-
-        if (Input.DarkTheme)
-        {
-            //sätt temat till mörkt
-        } 
-        else
-        {
-            //sätt temat till ljust
-        }  
+        if (Input.Email != null)
+            await Subscribe();
     }
+
+    private async Task OnValidSubmitUnsubscribeAsync()
+    {
+        if (user.Email != Input.Email)
+            await UpdateEmail();
+
+        if (Input.Email != null)
+            await Unsubscribe(Input.Email);
+    }
+
+
+    // private async Task OnValidSubmitAsync()
+    // {
+    //     if (user.Email != Input.Email)
+    //         await UpdateEmail();
+
+    //     if(Input.Email != null)
+    //     {
+    //         if (Input.Subscribe)
+    //         {
+    //             await Subscribe();  
+    //         }
+    //         else
+    //         {
+    //             await Unsubscribe(Input.Email);
+    //         }
+    //     }
+
+    //     if (Input.DarkTheme)
+    //     {
+    //         //sätt temat till mörkt
+    //     } 
+    //     else
+    //     {
+    //         //sätt temat till ljust
+    //     }  
+    // }
 
     public class NotificationInput
     {

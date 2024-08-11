@@ -1,5 +1,4 @@
 using WebApp;
-using WebApp.Client.Pages;
 using WebApp.Components;
 using WebApp.Components.Account;
 using WebApp.Data;
@@ -9,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
@@ -30,7 +28,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-///EJ KLART!!!!!!!!!!!!!!!!!!!!!! - byt ut till pooled dbContext???
+// **** NOT FINISHED ****
+// Change to a pooled DbContext
+
 //builder.Services.AddPooledDbContextFactory<ApplicationDbContext>(options =>
 //    options.UseSqlServer(connectionString));
 //var sp = builder.Services.BuildServiceProvider();
@@ -38,9 +38,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<ApplicationDbContext>>();
 //using var context = dbContextFactory.CreateDbContext();
 //context.Database.EnsureCreated();
-
-
-
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -68,7 +65,6 @@ builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseWebAssemblyDebugging();
@@ -77,7 +73,6 @@ if (app.Environment.IsDevelopment())
 else
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -89,10 +84,7 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode();
-    //.AddAdditionalAssemblies(typeof(Counter).Assembly);
 
-
-// Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
 
 app.Run();
